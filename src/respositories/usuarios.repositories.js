@@ -80,7 +80,7 @@ async function createUsuario(nome, cpf, email, senha) {
       cpf: usuario.cpf
     }
   } catch (error) {
-    client.query('ROLLBACK')
+    await client.query('ROLLBACK')
     throw error
   } finally {
     client.release()
@@ -108,8 +108,46 @@ async function findUsuarioById(usuarioId) {
   return result.rows[0] || null
 }
 
+async function updateUsuarioNome(usuarioId, nome) {
+  const result = await pool.query(
+    `UPDATE usuarios 
+      SET nome = $1 
+      WHERE id_usuario = $2
+      RETURNING id_usuario`,
+    [nome, usuarioId]
+  )
+  return result.rows[0] || null
+}
+
+async function updateUsuarioEmail(usuarioId, email) {
+  const result = await pool.query(
+    `UPDATE usuarios 
+      SET email = $1 
+      WHERE id_usuario = $2
+      RETURNING id_usuario`,
+    [email, usuarioId]
+  )
+  return result.rows[0] || null
+}
+
+async function updateUsuarioSenha(usuarioId, senha) {
+  const senhaHash = hashPassword(senha)
+
+  const result = await pool.query(
+    `UPDATE usuarios 
+      SET senha = $1
+      WHERE id_usuario = $2
+      RETURNING id_usuario`,
+    [senhaHash, usuarioId]
+  )
+  return result.rows[0] || null
+}
+
 module.exports = {
   createUsuario,
   updateUsuarioCpf,
-  findUsuarioById
+  findUsuarioById,
+  updateUsuarioNome,
+  updateUsuarioEmail,
+  updateUsuarioSenha
 }
