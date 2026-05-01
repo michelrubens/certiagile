@@ -3,7 +3,7 @@ const { createUsuario } = require('../respositories/usuarios.repositories')
 
 const router = Router()
 
-// POST /api
+// POST /api/usuarios
 router.post('/', async function (req, res) {
   const { nome, cpf, email, senha } = req.body
 
@@ -11,6 +11,12 @@ router.post('/', async function (req, res) {
     return res
       .status(400)
       .json({ message: 'Nome, CPF, e-mail e senha são obrigatórios.' })
+  }
+
+  if (senha.trim().lenght < 6) {
+    return res
+      .status(400)
+      .json({ message: 'A senha deve ter no mínimo 6 caracteres.' })
   }
 
   try {
