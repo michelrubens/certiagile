@@ -1,14 +1,16 @@
 const pool = require('../database/db')
 const { randomBytes } = require('crypto')
+const { hashPassword } = require('../utils/password')
 
 async function insertUsuario(client, nome, cpf, email, senha) {
   const certificadoHash = randomBytes(24).toString('hex')
+  const senhaHash = hashPassword(senha)
 
   const result = await client.query(
     `INSERT INTO usuarios (nome, cpf, email, senha, certificado_hash) 
       VALUES ($1, $2, $3, $4, $5) 
       RETURNING id_usuario, nome, cpf, email, certificado_hash`,
-    [nome, cpf, email, senha, certificadoHash]
+    [nome, cpf, email, senhaHash, certificadoHash]
   )
   return result.rows[0] || null
 }
