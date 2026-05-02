@@ -9,9 +9,22 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CertiAgile</title>
+    <style>
+      body {
+        visibility: hidden;
+      }
+    </style>
+    <script src="/js/api.js"></script>
+    <script>
+      requireGuest()
+    </script>
   </head>
   <body>
     <div>Início</div>
     <a href="/cadastro">Cadastro</a>
+
+    <script>
+      document.body.style.visibility = 'visible'
+    </script>
   </body>
 </html>

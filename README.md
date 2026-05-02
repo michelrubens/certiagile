@@ -16,6 +16,7 @@ O **CertiAgile** é uma plataforma em desenvolvimento focada na consolidação d
 - **Banco de Questões:** Organizado por módulos e categorias de metodologias ágeis.
 - **Histórico de Respostas:** Armazenamento detalhado de cada tentativa para fins de correção e nota.
 - **Inicialização Automatizada:** Scripts SQL prontos para criar o schema e popular o banco de dados (seeds).
+- **Interface Responsiva:** Painéis otimizados para diferentes tamanhos de tela (Mobile e Desktop).
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -26,14 +27,17 @@ O **CertiAgile** é uma plataforma em desenvolvimento focada na consolidação d
 - **Banco de Dados:** [PostgreSQL](https://www.postgresql.org/)
 - **Autenticação:** JWT (JSON Web Token)
 
-### Frontend (Em Breve)
+### Frontend
 
-- **Linguagem:** Javascript (Vanilla)
-- **Estilização:** CSS3 e HTML5
+- **Arquitetura:** Vanilla JavaScript (sem frameworks), HTML5 e CSS3.
+- **Design System:** Uso de variáveis CSS para padronização de cores, espaçamentos e sombras.
+- **Ícones:** [Material Symbols](https://fonts.google.com/icons) do Google.
+- **Segurança:** Sistema de proteção de rotas (Guest/Auth) e persistência de token via `localStorage`.
 
 ## 🔮 Próximos Passos (Roadmap)
 
-- [ ] **Interface Web:** Desenvolvimento de front-end sem frameworks (JS/HTML/CSS).
+- [x] **Interface Web:** Estruturação das páginas de Login e Cadastro com validações dinâmicas.
+- [ ] **Módulo de Tentativas:** Desenvolvimento da tela de questões e cronômetro.
 - [ ] **Emissão de Certificados:** Geração de certificados digitais em PDF com base no desempenho do aluno.
 - [ ] **Dashboards:** Visualização gráfica do progresso do usuário nos níveis de certificação.
 

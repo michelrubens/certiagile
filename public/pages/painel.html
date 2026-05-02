@@ -9,10 +9,20 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel — CertiAgile</title>
+    <style>
+      body {
+        visibility: hidden;
+      }
+    </style>
+    <script src="/js/api.js"></script>
+    <script>
+      requireAuth()
+    </script>
   </head>
   <body>
     <div>Painel</div>
+    <script>
+      document.body.style.visibility = 'visible'
+    </script>
   </body>
 </html>
-
-<script src="/js/api.js"></script>
