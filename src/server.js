@@ -30,6 +30,14 @@ app.get('/cadastro', function (_req, res) {
   res.sendFile(path.join(pagesPath, 'cadastro.html'))
 })
 
+app.get('/login', function (_req, res) {
+  res.sendFile(path.join(pagesPath, 'login.html'))
+})
+
+app.get('/painel', function (_req, res) {
+  res.sendFile(path.join(pagesPath, 'painel.html'))
+})
+
 app.use(function (_req, res) {
   res.status(404).redirect('not-found.html')
 })

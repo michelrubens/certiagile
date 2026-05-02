@@ -8,7 +8,7 @@ const router = Router()
 
 /*
 -----------------------------------
-  POST /api/usuarios/:id/cpf
+  POST /api/auth/login
 -----------------------------------
 curl -X POST http://localhost:3000/api/auth/login \
 -H "Content-Type: application/json" \
@@ -25,12 +25,17 @@ router.post('/login', async function (req, res) {
   try {
     const usuario = await findUsuarioByCpfAndSenha(cpf, senha)
     const token = createToken({ id_usuario: usuario.id_usuario })
-    return res.status(200).json({
-      token,
-      nome: usuario.nome
-    })
+    return res.status(200).json({ token, nome: usuario.nome })
   } catch (error) {
-    return res.status(500).json({ message: error.message })
+    // Erros de credencial → 401
+    if (
+      error.message === 'Usuário não encontrado.' ||
+      error.message === 'Senha inválida.'
+    ) {
+      return res.status(401).json({ message: 'CPF ou senha incorretos.' })
+    }
+    // Erros inesperados → 500
+    return res.status(500).json({ message: 'Erro interno do servidor.' })
   }
 })
 

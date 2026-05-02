@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — CertiAgile</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/login.css" />
+  </head>
+
+  <body class="page-centered">
+    <main class="login-container">
+      <!-- Brand -->
+      <div class="brand-section">
+        <div class="brand-icon-wrap">
+          <svg
+            width="48"
+            height="48"
+            viewBox="20 25 90 90"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <rect x="20" y="25" width="90" height="90" rx="22" fill="#2563EB" />
+            <path
+              d="M45 72L62 88L88 52"
+              stroke="white"
+              stroke-width="8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M62 88L92 58"
+              stroke="#10B981"
+              stroke-width="8"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+        <h1 class="brand-title">
+          Certi<span class="brand-title-agile">Agile</span>
+        </h1>
+        <p class="brand-subtitle">
+          Sua autoridade em metodologias ágeis e certificações de elite.
+        </p>
+      </div>
+
+      <!-- Card -->
+      <section class="card">
+        <form id="form-login" novalidate>
+          <!-- CPF -->
+          <div class="field">
+            <label for="cpf">
+              <span class="material-symbols-outlined">badge</span>
+              CPF
+            </label>
+            <div class="input-wrap">
+              <input
+                type="text"
+                id="cpf"
+                name="cpf"
+                placeholder="000.000.000-00"
+                inputmode="numeric"
+                maxlength="14"
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <!-- Senha -->
+          <div class="field">
+            <div class="field-header">
+              <label for="password">
+                <span class="material-symbols-outlined">lock</span>
+                Senha
+              </label>
+              <a href="#" class="forgot-link">Esqueci minha senha</a>
+            </div>
+            <div class="input-wrap">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                autocomplete="current-password"
+              />
+            </div>
+          </div>
+
+          <!-- Lembrar -->
+          <div class="remember">
+            <input type="checkbox" id="remember" />
+            <label for="remember">Manter conectado neste dispositivo</label>
+          </div>
+
+          <button type="submit" class="btn-submit">
+            Entrar
+            <span class="material-symbols-outlined">login</span>
+          </button>
+        </form>
+
+        <div class="card-footer">
+          Ainda não tem uma conta?
+          <a href="/cadastro.html">Criar conta gratuita</a>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="login-footer">
+        <div class="trust-badges">
+          <span class="badge-item">
+            <span class="material-symbols-outlined">shield</span>
+            Secure Connection
+          </span>
+          <span class="badge-item">
+            <span class="material-symbols-outlined">database</span>
+            ISO 27001
+          </span>
+        </div>
+        <p class="login-copy">
+          © 2026 CertiAgile. Portal de certificação ágil.<br />
+          Ao entrar, você concorda com nossos
+          <a href="#">Termos</a> e <a href="#">Privacidade</a>.
+        </p>
+      </footer>
+    </main>
+
+    <script src="/js/login.js"></script>
+  </body>
+</html>
