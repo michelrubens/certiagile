@@ -88,14 +88,24 @@ npm run dev
 
 O servidor estará disponível em `http://localhost:3000`.
 
-## 🔌 API Endpoints (Exemplos)
+## 🔌 API Endpoints
+
+### Autenticação
+
+- `POST /api/auth/login` - Realiza login e retorna o token JWT.
 
 ### Usuários
 
-- `POST /api/usuarios` - Cria um novo usuário.
+- `POST /api/usuarios` - Cadastro de novo usuário.
 - `PATCH /api/usuarios/nome` - Atualiza o nome (Requer Token).
+- `PATCH /api/usuarios/cpf` - Atualiza o CPF (Requer Token).
+- `PATCH /api/usuarios/email` - Atualiza o e-mail (Requer Token).
 - `PATCH /api/usuarios/senha` - Atualiza a senha (Requer Token).
-- `GET /api/usuarios/proxima-questao` - Busca a próxima questão disponível para o aluno.
+
+### Questões
+
+- `GET /api/questoes/proxima-questao` - Busca a próxima questão pendente do questionário (Requer Token).
+- `POST /api/questoes/responder` - Registra a resposta de uma questão (Requer Token).
 
 ## 📂 Estrutura de Pastas
 
