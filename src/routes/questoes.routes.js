@@ -34,7 +34,10 @@ router.get('/proxima-questao', authMiddleware, async function (req, res) {
         .status(404)
         .json({ message: 'Nenhuma questão pendente encontrada.' })
     }
-    return res.status(200).json(questao)
+    return res.status(200).json({
+      ...questao,
+      imagem: questao.imagem ? `/imagens/questoes/${questao.imagem}` : null
+    })
   } catch (error) {
     return res.status(500).json({ message: error.message })
   }
