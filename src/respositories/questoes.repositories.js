@@ -203,7 +203,6 @@ async function findProximoModuloByUsuario(idUsuario) {
       ORDER BY m.id_modulo ASC 
       LIMIT 1 
     `,
-
     [idUsuario]
   )
 
@@ -291,6 +290,60 @@ async function countQuestoesRespondidasByUsuario(usuarioId) {
   return Number(result.rows[0]?.total ?? 0)
 }
 
+async function findModulosRespondidosByUsuario(idUsuario) {
+  const result = await pool.query(
+    ` 
+      WITH tentativas AS ( 
+        SELECT 
+          q.id_modulo, 
+          q.grupo, 
+          MIN(r.respondido_em) AS inicio, 
+          MAX(r.respondido_em) AS fim, 
+          COUNT(DISTINCT r.id_questao)::INTEGER AS questoes_respondidas, 
+          COALESCE(SUM(r.nota), 0)::INTEGER AS nota 
+        FROM respostas r 
+        INNER JOIN exames e 
+          ON e.id_exame = r.id_exame 
+        INNER JOIN questoes q 
+          ON q.id_questao = r.id_questao 
+        WHERE e.id_usuario = $1 
+        GROUP BY 
+          q.id_modulo, 
+          q.grupo 
+      ) 
+      SELECT 
+        t.id_modulo, 
+        t.inicio, 
+        t.fim, 
+        t.questoes_respondidas, 
+        COUNT(q.id_questao)::INTEGER AS questoes, 
+        t.nota, 
+        ROW_NUMBER() OVER ( 
+          PARTITION BY t.id_modulo 
+          ORDER BY t.inicio ASC 
+        )::INTEGER AS tentativa 
+      FROM tentativas t 
+      INNER JOIN questoes q 
+        ON q.id_modulo = t.id_modulo 
+      AND q.grupo IS NOT DISTINCT FROM t.grupo 
+      GROUP BY 
+        t.id_modulo, 
+        t.grupo, 
+        t.inicio, 
+        t.fim, 
+        t.questoes_respondidas, 
+        t.nota 
+      ORDER BY 
+        t.id_modulo ASC, 
+        tentativa ASC 
+    `,
+
+    [idUsuario]
+  )
+
+  return result.rows
+}
+
 module.exports = {
   findProximaQuestaoByUsuario,
   findQuestaoDoExameByUsuario,
@@ -303,5 +356,6 @@ module.exports = {
   findProximoModuloByUsuario,
   insertProximoModulo,
   findExamesByUsuario,
-  countQuestoesRespondidasByUsuario
+  countQuestoesRespondidasByUsuario,
+  findModulosRespondidosByUsuario
 }

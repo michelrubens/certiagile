@@ -10,7 +10,8 @@ const {
   insertProximaTentativa,
   findProximoModuloByUsuario,
   insertProximoModulo,
-  countQuestoesRespondidasByUsuario
+  countQuestoesRespondidasByUsuario,
+  findModulosRespondidosByUsuario
 } = require('../respositories/questoes.repositories')
 const authMiddleware = require('../middlewares/auth.middleware')
 
@@ -275,6 +276,28 @@ curl -X GET http://localhost:3000/api/questoes/progresso \
 router.get('/progresso', authMiddleware, async function (req, res) {
   const total = await countQuestoesRespondidasByUsuario(req.usuario.id_usuario)
   return res.status(200).json({ respondidas: total, total: 50 })
+})
+
+/* 
+------------------------------------------
+  GET /api/questoes/modulos-respondidos
+------------------------------------------
+curl -X GET http://localhost:3000/api/questoes/modulos-respondidos \ 
+  -H "Authorization: Bearer SEU_TOKEN" 
+------------------------------------------
+*/
+router.get('/modulos-respondidos', authMiddleware, async function (req, res) {
+  try {
+    const modulos = await findModulosRespondidosByUsuario(
+      req.usuario.id_usuario
+    )
+
+    return res.status(200).json(modulos)
+  } catch (e) {
+    return res.status(500).json({
+      message: 'erro interno do servidor'
+    })
+  }
 })
 
 module.exports = router
