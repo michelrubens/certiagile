@@ -11,7 +11,8 @@ const {
   findProximoModuloByUsuario,
   insertProximoModulo,
   countQuestoesRespondidasByUsuario,
-  findModulosRespondidosByUsuario
+  findModulosRespondidosByUsuario,
+  jaExiste
 } = require('../respositories/questoes.repositories')
 const authMiddleware = require('../middlewares/auth.middleware')
 
@@ -300,6 +301,78 @@ router.get('/modulos-respondidos', authMiddleware, async function (req, res) {
     return res.status(500).json({
       message: 'erro interno do servidor'
     })
+  }
+})
+
+/*
+------------------------------------------
+  GET /api/questoes/modulo-atual
+------------------------------------------
+curl -X GET http://localhost:3000/api/questoes/modulo-atual \
+  -H "Authorization: Bearer SEU_TOKEN"
+------------------------------------------
+*/
+router.get('/modulo-atual', authMiddleware, async function (req, res) {
+  try {
+    const modulo = await findModuloAtualByUsuario(req.usuario.id_usuario)
+    if (!modulo) {
+      return res.status(404).json({ message: 'Nenhum módulo em andamento.' })
+    }
+    return res.status(200).json(modulo)
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
+  }
+})
+
+/*
+------------------------------------------
+  PATCH /api/questoes/pular-tentativa
+------------------------------------------
+curl -X PATCH http://localhost:3000/api/questoes/pular-tentativa \
+  -H "Authorization: Bearer SEU_TOKEN"
+------------------------------------------
+*/
+router.patch('/pular-tentativa', authMiddleware, async function (req, res) {
+  try {
+    const moduloAtual = await findModuloAtualByUsuario(req.usuario.id_usuario)
+    if (!moduloAtual) {
+      return res.status(404).json({ message: 'Módulo atual não encontrado.' })
+    }
+
+    const proximoModulo = await findProximoModuloByUsuario(
+      req.usuario.id_usuario
+    )
+    if (!proximoModulo) {
+      return res
+        .status(404)
+        .json({ message: 'Você já concluiu todos os módulos.' })
+    }
+
+    const existe = await jaExiste(req.usuario.id_usuario, proximoModulo)
+
+    if (existe.rows.length > 0) {
+      return res.status(409).json({ message: 'Próximo módulo já foi criado.' })
+    }
+
+    const grupo = await findOutroGrupoAleatorio(
+      req.usuario.id_usuario,
+      proximoModulo
+    )
+    if (!grupo) {
+      return res
+        .status(500)
+        .json({ message: 'Nenhum grupo disponível para o próximo módulo.' })
+    }
+
+    const exame = await insertProximoModulo(
+      moduloAtual.id_exame,
+      proximoModulo,
+      grupo,
+      1
+    )
+    return res.status(200).json(exame)
+  } catch (error) {
+    return res.status(500).json({ message: error.message })
   }
 })
 

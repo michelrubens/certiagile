@@ -48,6 +48,10 @@ app.get('/painel', function (_req, res) {
   res.sendFile(path.join(pagesPath, 'painel.html'))
 })
 
+app.get('/avaliacao', function (_req, res) {
+  res.sendFile(path.join(pagesPath, 'avaliacao.html'))
+})
+
 app.use(function (_req, res) {
   res.status(404).redirect('not-found.html')
 })

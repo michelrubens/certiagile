@@ -29,7 +29,7 @@ async function init() {
 
     renderPerfil(usuario, exames)
     renderProgresso(exames, progresso)
-    renderNiveis(exames, usuario.nivel_atual ?? 1)
+    renderNiveis(exames, usuario.nivel_atual ?? 1, progresso.respondidas)
   } catch (err) {
     console.error('Erro ao carregar painel:', err)
   }
@@ -41,15 +41,13 @@ function renderPerfil(usuario, exames) {
     : '—'
 
   // Cada nível tem 2 tentativas máximas
-  // Tentativas restantes = (2 * níveis com exame) - tentativas usadas
-  const totalUsadas = exames.reduce(
-    (acc, e) => acc + Number(e.tentativas_usadas ?? 0),
-    0
-  )
-  const totalRestantes = exames.reduce(
-    (acc, e) => acc + (2 - Number(e.tentativas_usadas ?? 0)),
-    0
-  )
+  // As tentativas restantes referem-se apenas ao nível atual, pois níveis anteriores são bloqueados ao avançar.
+  const nivelAtivo = Number(usuario.nivel_atual ?? 1)
+  const exameAtual = exames.find((e) => Number(e.nivel) === nivelAtivo)
+
+  const tentativasUsadasNoNivel = Number(exameAtual?.tentativas_usadas ?? 0)
+  const totalRestantes = Math.max(0, 2 - tentativasUsadasNoNivel)
+
   const totalConcluidos = exames.filter((e) => e.aprovado).length
 
   document.getElementById('sidebar-nome').textContent =
@@ -66,10 +64,11 @@ function renderPerfil(usuario, exames) {
   document.getElementById('label-restantes').textContent =
     totalRestantes === 1 ? 'Restante' : 'Restantes'
 
-  // Pinta as bolinhas: verde = usada, cinza = disponível
+  // Pinta as bolinhas: de acordo com o requisito, a cor verde (classe 'usada')
+  // deve representar a quantidade de tentativas restantes (stat-value).
   const dots = document.querySelectorAll('#tentativas-dots .dot')
   dots.forEach((dot, i) => {
-    dot.classList.toggle('usada', i < totalUsadas)
+    dot.classList.toggle('usada', i < totalRestantes)
   })
 
   document.getElementById('stat-aprovacoes').textContent = totalConcluidos
@@ -95,29 +94,37 @@ function renderProgresso(exames, progresso) {
       : `${respondidas} de ${total} questões respondidas — ${aprovados} de 5 níveis concluídos.`
 }
 
-function renderNiveis(exames, nivelAtual) {
+function renderNiveis(exames, nivelAtual, respondidas) {
   const grid = document.getElementById('levels-grid')
   grid.innerHTML = ''
 
-  for (let i = 1; i <= 5; i++) {
-    const exame = exames.find((e) => e.nivel === i)
-    const concluido = exame?.aprovado === true
-    const temExame = exame != null // já tem exame criado para este nível
-    const bloqueado = !concluido && !temExame // bloqueado se não tem exame ainda
-    const emProgresso = !concluido && temExame
+  // Encontra o maior nível que já possui registro de exame para determinar o progresso atual
+  const ultimoNivelComExame =
+    exames.length > 0 ? Math.max(...exames.map((e) => Number(e.nivel))) : 1
 
-    let estado = concluido
-      ? 'concluido'
-      : bloqueado
-        ? 'bloqueado'
-        : 'em-progresso'
-    let badgeLabel = concluido
-      ? 'Concluído'
-      : bloqueado
-        ? 'Bloqueado'
-        : 'Em progresso'
-    let icon = concluido ? 'verified' : bloqueado ? 'lock' : 'pending'
-    let iconFill = concluido ? `style="font-variation-settings:'FILL' 1"` : ''
+  for (let i = 1; i <= 5; i++) {
+    const exame = exames.find((e) => Number(e.nivel) === i)
+    const isUltimo = i === ultimoNivelComExame
+
+    let estado = 'bloqueado'
+    let badgeLabel = 'Bloqueado'
+    let icon = 'lock'
+
+    // Se o exame existe, mostra o status real (Concluído ou Em Progresso)
+    if (exame) {
+      if (exame.aprovado) {
+        estado = 'concluido'
+        badgeLabel = 'Concluído'
+        icon = 'verified'
+      } else {
+        estado = 'em-progresso'
+        badgeLabel = 'Em progresso'
+        icon = 'pending'
+      }
+    }
+
+    const iconFill =
+      estado === 'concluido' ? `style="font-variation-settings:'FILL' 1"` : ''
 
     const melhorNota =
       exame?.melhor_nota != null ? `${exame.melhor_nota}%` : '—'
@@ -128,47 +135,85 @@ function renderNiveis(exames, nivelAtual) {
     const temAndamento = tentativasIniciadas > tentativasUsadas
 
     let footerHTML = ''
-    if (concluido) {
-      const temTentativaDisponivel = tentativasUsadas < tentativasMax
-      footerHTML = `
+
+    if (isUltimo) {
+      if (estado === 'em-progresso') {
+        // Lógica Iniciar vs Continuar:
+        // Se é o nível 1 e respondidas é 0, ou se é um nível superior e o usuário acabou de chegar (usadas=0)
+        const totalRespondidasAnteriores = (i - 1) * 10
+        const label =
+          tentativasUsadas === 0 && respondidas <= totalRespondidasAnteriores
+            ? 'Iniciar Avaliação'
+            : 'Continuar Avaliação'
+
+        footerHTML = `
+          <button class="btn-level primary" onclick="window.location.href='/avaliacao'">
+            ${label}
+          </button>`
+      } else if (estado === 'concluido') {
+        let actionsHTML = ''
+
+        if (temAndamento) {
+          // Se o nível já foi aprovado mas há uma nova tentativa em curso
+          actionsHTML += `
+            <button class="btn-level primary" onclick="window.location.href='/avaliacao'">
+              Continuar Avaliação
+            </button>`
+        } else {
+          // Botão Nova Tentativa (se disponível)
+          if (tentativasUsadas < tentativasMax) {
+            actionsHTML += `
+              <button class="btn-level outline-green" onclick="iniciarNovaTentativa()">
+                Fazer nova tentativa
+              </button>`
+          }
+
+          // Botão Avançar ou Finalizar
+          if (i < 5) {
+            actionsHTML += `
+              <button class="btn-level outline-advance" onclick="avancarNivel()">
+                Próximo Nível
+              </button>`
+          } else {
+            actionsHTML += `
+              <button class="btn-level primary" onclick="finalizarAvaliacao()">
+                Finalizar Avaliação
+              </button>`
+          }
+        }
+
+        footerHTML = `
         <span class="nivel-concluido-label">
           <span class="material-symbols-outlined" style="font-size:14px;font-variation-settings:'FILL' 1">check_circle</span>
           Nível concluído
         </span>
-        ${
-          temTentativaDisponivel
-            ? `
-          <button class="btn-level outline-green" onclick="window.location.href='/avaliacao'">
-            ${temAndamento ? 'Continuar tentativa' : 'Fazer nova tentativa'}
-          </button>`
-            : ''
-        }
-      `
-    } else if (emProgresso) {
+        <div class="level-actions">${actionsHTML}</div>`
+      }
+    } else if (estado === 'concluido') {
+      // Para níveis anteriores já finalizados, mostramos apenas o label sem botões
       footerHTML = `
-        <button class="btn-level primary" onclick="window.location.href='/avaliacao'">
-          ${temAndamento ? 'Continuar Avaliação' : 'Iniciar Avaliação'}
-        </button>
-      `
+        <span class="nivel-concluido-label">
+          <span class="material-symbols-outlined" style="font-size:14px;font-variation-settings:'FILL' 1">check_circle</span>
+          Nível concluído
+        </span>`
     }
 
     let statsHTML = ''
-    if (!bloqueado) {
+    if (estado !== 'bloqueado') {
       statsHTML = `
         <div class="level-stats">
           <div class="level-stat-row">
             <span>Melhor Nota</span>
-            <span class="${concluido ? 'val-green' : ''}">${melhorNota}</span>
+            <span class="${estado === 'concluido' ? 'val-green' : ''}">${melhorNota}</span>
           </div>
           <div class="level-stat-row">
-            <span>${concluido ? 'Tentativas' : 'Tentativas Restantes'}</span>
-            <span class="${emProgresso && tentativasUsadas >= 1 ? 'val-yellow' : ''}">
-              ${concluido ? `${tentativasUsadas} / ${tentativasMax}` : tentativasMax - tentativasUsadas}
+            <span>${estado === 'concluido' ? 'Tentativas' : 'Tentativas Restantes'}</span>
+            <span class="${estado === 'em-progresso' && tentativasUsadas >= 1 ? 'val-yellow' : ''}">
+              ${estado === 'concluido' ? `${tentativasUsadas} / ${tentativasMax}` : tentativasMax - tentativasUsadas}
             </span>
           </div>
         </div>`
     } else {
-      const pctReq = Math.round(((i - nivelAtual) / 1) * 33)
       statsHTML = `
         <p style="font-size:.75rem;color:var(--color-secondary);line-height:1.5">
           Conclua o nível anterior para desbloquear este.
@@ -202,5 +247,47 @@ document.getElementById('btn-logout').addEventListener('click', function () {
   localStorage.removeItem('token')
   window.location.href = '/login'
 })
+
+async function avancarNivel() {
+  try {
+    const res = await apiFetch('/api/questoes/pular-tentativa', {
+      method: 'PATCH'
+    })
+    const data = await res.json()
+    console.log('pular-tentativa:', res.status, data)
+
+    if (res.ok) {
+      window.location.reload()
+    } else {
+      alert(data.message || 'Não foi possível avançar.')
+    }
+  } catch (err) {
+    console.error('Erro ao avançar nível:', err)
+    alert('Não foi possível avançar. Tente novamente.')
+  }
+}
+
+async function iniciarNovaTentativa() {
+  try {
+    const res = await apiFetch('/api/questoes/proxima-tentativa', {
+      method: 'PATCH'
+    })
+
+    if (res.ok) {
+      window.location.href = '/avaliacao'
+    } else {
+      const data = await res.json()
+      alert(data.message || 'Erro ao iniciar nova tentativa.')
+    }
+  } catch (err) {
+    console.error('Erro ao iniciar nova tentativa:', err)
+  }
+}
+
+function finalizarAvaliacao() {
+  alert(
+    'Parabéns! Você concluiu a certificação CertiAgile. Verifique seu painel para emitir seu certificado.'
+  )
+}
 
 init()

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Avaliação | CertiAgile</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        visibility: hidden;
+      }
+    </style>
+    <script src="/js/api.js"></script>
+    <script>
+      requireAuth()
+    </script>
+
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/avaliacao.css" />
+  </head>
+
+  <body>
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="/painel" class="brand">
+          <svg
+            width="28"
+            height="28"
+            viewBox="20 25 90 90"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <rect x="20" y="25" width="90" height="90" rx="22" fill="#2563EB" />
+            <path
+              d="M45 72L62 88L88 52"
+              stroke="white"
+              stroke-width="8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M62 88L92 58"
+              stroke="#10B981"
+              stroke-width="8"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="logo">Certi<span class="logo-agile">Agile</span></span>
+        </a>
+        <div class="topbar-meta" id="topbar-meta">
+          <!-- preenchido pelo JS -->
+        </div>
+      </div>
+    </header>
+
+    <!-- Barra de progresso -->
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar-fill"></div>
+    </div>
+
+    <!-- Main -->
+    <main class="avaliacao-main">
+      <!-- Estado: carregando -->
+      <div class="state" id="state-loading">
+        <div class="loading-card">
+          <div class="spinner"></div>
+          <p class="loading-title">Carregando questão...</p>
+          <p class="loading-sub">Aguarde um instante.</p>
+        </div>
+      </div>
+
+      <!-- Estado: questão -->
+      <div class="state hidden" id="state-questao">
+        <div class="questao-wrap">
+          <!-- Cabeçalho da questão -->
+          <div class="questao-header">
+            <span class="questao-badge" id="questao-badge"
+              >Questão — de 10</span
+            >
+            <span class="questao-dificuldade" id="questao-dificuldade"></span>
+          </div>
+
+          <!-- Enunciado -->
+          <div class="card questao-card">
+            <p class="questao-enunciado" id="questao-enunciado"></p>
+
+            <!-- Imagem opcional -->
+            <div class="questao-imagem-wrap hidden" id="questao-imagem-wrap">
+              <img id="questao-imagem" src="" alt="Imagem da questão" />
+            </div>
+
+            <!-- Alternativas -->
+            <div class="alternativas" id="alternativas">
+              <!-- preenchido pelo JS -->
+            </div>
+
+            <!-- Feedback após responder -->
+            <div class="feedback hidden" id="feedback">
+              <span class="feedback-icon" id="feedback-icon"></span>
+              <span class="feedback-texto" id="feedback-texto"></span>
+            </div>
+          </div>
+
+          <!-- Navegação -->
+          <div class="questao-nav">
+            <button class="btn-nav btn-proximo hidden" id="btn-proximo">
+              Próxima questão
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado: concluído -->
+      <div class="state hidden" id="state-concluido">
+        <div class="concluido-card">
+          <div class="concluido-icon">
+            <span
+              class="material-symbols-outlined"
+              style="font-size: 48px; font-variation-settings: 'FILL' 1"
+              >check_circle</span
+            >
+          </div>
+          <h1 class="concluido-title" id="concluido-title">
+            Avaliação concluída!
+          </h1>
+          <p class="concluido-sub" id="concluido-sub"></p>
+          <a href="/painel" class="btn-painel">Voltar ao Painel</a>
+        </div>
+      </div>
+
+      <!-- Estado: erro -->
+      <div class="state hidden" id="state-erro">
+        <div class="concluido-card">
+          <div class="concluido-icon erro">
+            <span class="material-symbols-outlined" style="font-size: 48px"
+              >error</span
+            >
+          </div>
+          <h1 class="concluido-title">Algo deu errado</h1>
+          <p class="concluido-sub" id="erro-msg">
+            Não foi possível carregar a questão.
+          </p>
+          <button class="btn-painel" onclick="carregarQuestao()">
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/avaliacao.js"></script>
+    <script>
+      document.body.style.visibility = 'visible'
+    </script>
+  </body>
+</html>

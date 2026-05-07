@@ -132,7 +132,8 @@ async function findModuloAtualByUsuario(usuarioId) {
         e.id_modulo, 
         m.titulo,
         e.grupo, 
-        e.tentativa
+        e.tentativa,
+        (SELECT COUNT(*)::int FROM respostas r WHERE r.id_exame = e.id_exame) as respondidas
       FROM exames e 
       INNER JOIN modulos m 
         ON m.id_modulo = e.id_modulo 
@@ -340,8 +341,14 @@ async function findModulosRespondidosByUsuario(idUsuario) {
 
     [idUsuario]
   )
+}
 
-  return result.rows
+async function jaExiste(idUsuario, idModulo) {
+  const result = await pool.query(
+    `SELECT id_exame FROM exames WHERE id_usuario = $1 AND id_modulo = $2 LIMIT 1`,
+    [idUsuario, idModulo]
+  )
+  return result
 }
 
 module.exports = {
@@ -357,5 +364,6 @@ module.exports = {
   insertProximoModulo,
   findExamesByUsuario,
   countQuestoesRespondidasByUsuario,
-  findModulosRespondidosByUsuario
+  findModulosRespondidosByUsuario,
+  jaExiste
 }
