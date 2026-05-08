@@ -16,6 +16,22 @@
   box-sizing: border-box; /* Garante que padding e border sejam incluídos na largura/altura */
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.logo {
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: var(--color-heading);
+}
+.logo-agile {
+  color: var(--color-cta-blue);
+}
+
 /* Marca d'água (mantida do HTML original) */
 .watermark {
   background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuBmOVk8UCrT4u3z_YAxuV3zltCl6qkHmx3nZdAvDYDvZx64AdtHlN7LDlknwXQmtN6FnZ16tD_1SoZB8T5AYDoeL8X0nlurAzTa92UwZzmtZ5LXcI8IhMUJfKwf1DZmPxLK1UOLeQKxLzX1TeqWXlkIiRKdkfn0Z_J_xpOQMFEzN3aKR1NzgolVb_7Rk22z5HLAnC5lD6HMtlfDz5dGG5uPF_SW-FQxISab-gmb4eI-4Vgs6NwQl1BhSh3fGzlXIazUnCmkDtCREKI);
